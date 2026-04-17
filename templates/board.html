@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}{{ board.name }} | Team Resource Board{% endblock %}
+
+{% block content %}
+<div class="mb-12">
+    <a href="/" class="text-blue-600 font-semibold mb-6 flex items-center hover:translate-x-[-4px] transition-transform">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Dashboard
+    </a>
+    <div class="flex justify-between items-start">
+        <div>
+            <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 mb-2">{{ board.name }}</h1>
+            <p class="text-slate-500 text-lg max-w-2xl">{{ board.description }}</p>
+        </div>
+        <div class="flex space-x-4">
+            <button class="bg-white border border-slate-200 px-6 py-3 rounded-xl font-semibold hover:border-blue-600 transition-all">
+                Share Board
+            </button>
+            <button class="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-blue-500/30 hover:bg-blue-700 hover:-translate-y-0.5 transition-all">
+                + Add Resource
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-10">
+    <!-- Sidebar Filters -->
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 sticky top-24">
+            <h3 class="font-bold text-slate-900 mb-6 uppercase tracking-wider text-xs">Filter by Type</h3>
+            <nav class="space-y-2">
+                <a href="#" class="flex items-center space-x-3 bg-blue-50 text-blue-700 px-4 py-3 rounded-xl font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                    <span>All Resources</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 px-4 py-3 rounded-xl transition-all">
+                    <span class="w-2 h-2 rounded-full bg-orange-400"></span>
+                    <span>Links</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 px-4 py-3 rounded-xl transition-all">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span>Documents</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 px-4 py-3 rounded-xl transition-all">
+                    <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+                    <span>Media</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Resource List -->
+    <div class="lg:col-span-3">
+        <div class="space-y-6">
+            {% for res in resources %}
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-lg hover:border-blue-100 transition-all flex items-center justify-between group">
+                <div class="flex items-center space-x-6">
+                    <div class="w-14 h-14 {% if res.type == 'link' %}bg-orange-50 text-orange-600{% else %}bg-emerald-50 text-emerald-600{% endif %} rounded-2xl flex items-center justify-center">
+                        {% if res.type == 'link' %}
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                        {% else %}
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{{ res.title }}</h3>
+                        <p class="text-slate-500 text-sm mb-1">{{ res.description }}</p>
+                        <a href="{{ res.url }}" target="_blank" class="text-xs font-mono text-slate-400 hover:text-blue-600 transition-colors">{{ res.url }}</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button class="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-100 hover:text-slate-600 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </button>
+                    <button class="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-red-50 hover:text-red-600 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
