@@ -80,3 +80,45 @@ To demonstrate **Infrastructure as a Service**, you can run the health monitor o
 - [x] **Resource Types:** Support for Links and Document uploads.
 - [x] **Role-Based Access:** Managed through Supabase RLS policies.
 - [x] **Mobile Responsive:** Modern UI that works on all devices.
+
+---
+
+## 🌐 Deploy on Render (Recommended)
+
+### 1. Create Service
+1. Push this repository to GitHub.
+2. In Render, create a new **Web Service** from the repo.
+
+### 2. Build and Start Commands
+- **Build Command:**
+```bash
+pip install -r requirements.txt
+```
+- **Start Command:**
+```bash
+uvicorn app:app --host 0.0.0.0 --port $PORT
+```
+
+Use `0.0.0.0` and `$PORT` so Render can detect the listening port.
+Do not use `--reload` in production.
+
+### 3. Environment Variables
+Add these in Render dashboard:
+- `SUPABASE_URL`
+- `SUPABASE_KEY`
+- `SUPABASE_SERVICE_KEY`
+- `SECRET_KEY`
+- `SUPABASE_STORAGE_BUCKET` (optional, default: `resource-files`)
+
+### 4. Health Check
+- **Health check path:** `/healthz`
+
+The app includes this endpoint so Render can verify service readiness.
+
+### 5. Verify Deployment
+After deploy, test:
+1. `/` dashboard page
+2. `/login` authentication
+3. board creation
+4. resource upload/open
+5. share-link flow
