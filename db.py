@@ -355,11 +355,9 @@ def get_client(access_token: Optional[str] = None) -> Client:
     client = create_client(SUPABASE_URL, SUPABASE_KEY)
     if access_token:
         client.postgrest.auth(access_token)
-        # Attempt to set auth session context for RLS
-        try:
-            client.auth.set_session(access_token, "") 
-        except Exception:
-            pass
+        # PostgREST auth header is enough for RLS-aware DB queries.
+        # Avoid set_session() here because we do not have a refresh token,
+        # and passing an empty one can clear auth context.
     return client
 
 
