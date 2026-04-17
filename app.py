@@ -166,7 +166,15 @@ async def healthz():
 @app.post("/boards/create")
 async def create_board(request: Request, name: str = Form(...), description: str = Form("")):
     access_token = request.cookies.get("access_token")
-    board, error = db.create_board(name=name, description=description, access_token=access_token)
+    user = await get_current_user(request)
+    user_id = str(user.id) if user and getattr(user, "id", None) else None
+
+    board, error = db.create_board(
+        name=name,
+        description=description,
+        access_token=access_token,
+        created_by=user_id,
+    )
 
     if error:
         query = urlencode({"error": error})
@@ -204,6 +212,9 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
     try:
         client = create_client(SUPABASE_URL, SUPABASE_KEY)
         res = client.auth.sign_in_with_password({"email": email, "password": password})
+
+        is_https = request.url.scheme == "https"
+        cookie_samesite = "none" if is_https else "lax"
         
         response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
         response.set_cookie(
@@ -211,8 +222,21 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
             value=res.session.access_token, 
             httponly=True,
             max_age=3600,
-            samesite="lax"
+            secure=is_https,
+            samesite=cookie_samesite,
+            path="/",
         )
+
+        if res.session and res.session.refresh_token:
+            response.set_cookie(
+                key="refresh_token",
+                value=res.session.refresh_token,
+                httponly=True,
+                max_age=60 * 60 * 24 * 30,
+                secure=is_https,
+                samesite=cookie_samesite,
+                path="/",
+            )
         return response
     except Exception as e:
         print(f"Login error: {e}")
@@ -225,6 +249,7 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
 async def logout():
     response = RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
     response.delete_cookie("access_token")
+    response.delete_cookie("refresh_token")
     return response
 
 @app.get("/board/{board_id}", response_class=HTMLResponse)
