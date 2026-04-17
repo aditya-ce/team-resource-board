@@ -3,14 +3,66 @@
 {% block title %}Dashboard | Team Resource Board{% endblock %}
 
 {% block content %}
+{% set demo_mode = boards | selectattr('is_demo') | list | length > 0 %}
+
+{% if demo_mode %}
+<div class="mb-8 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900">
+    <p class="font-semibold">Demo mode is active.</p>
+    <p class="text-sm mt-1">Run the SQL in <span class="font-mono">supabase_schema.sql</span> on your Supabase project to load real boards and resources.</p>
+</div>
+{% endif %}
+
+{% if message %}
+<div class="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-900">
+    <p class="font-semibold">{{ message }}</p>
+</div>
+{% endif %}
+
+{% if error %}
+<div class="mb-8 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-800">
+    <p class="font-semibold">{{ error }}</p>
+</div>
+{% endif %}
+
+<div x-data="{ openCreate: false }" class="mb-10">
+    <div class="flex justify-between items-end">
+        <div>
+            <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 mb-2">My Team Boards</h1>
+            <p class="text-slate-500 text-lg">Centralize your team's knowledge and resources.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <form action="/boards/seed-examples" method="POST">
+                <button type="submit" class="bg-white border border-slate-200 text-slate-700 px-5 py-3 rounded-xl font-semibold hover:border-blue-500 hover:text-blue-600 transition-all">
+                    Seed Example Boards
+                </button>
+            </form>
+            <button @click="openCreate = !openCreate" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-blue-500/30 hover:bg-blue-700 hover:-translate-y-0.5 transition-all">
+                + Create New Board
+            </button>
+        </div>
+    </div>
+
+    <form x-show="openCreate" x-transition action="/boards/create" method="POST" class="mt-6 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+        <div>
+            <label for="name" class="block text-sm font-semibold text-slate-700 mb-2">Board Name</label>
+            <input id="name" name="name" required maxlength="120" placeholder="Engineering Wiki" class="w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all" />
+        </div>
+        <div>
+            <label for="description" class="block text-sm font-semibold text-slate-700 mb-2">Description</label>
+            <textarea id="description" name="description" rows="3" placeholder="What this board is for" class="w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"></textarea>
+        </div>
+        <div class="flex justify-end gap-3">
+            <button type="button" @click="openCreate = false" class="px-4 py-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50">Cancel</button>
+            <button type="submit" class="px-5 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700">Create Board</button>
+        </div>
+    </form>
+</div>
+
 <div class="flex justify-between items-end mb-10">
     <div>
-        <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 mb-2">My Team Boards</h1>
-        <p class="text-slate-500 text-lg">Centralize your team's knowledge and resources.</p>
+        <h2 class="text-xl font-bold text-slate-900">Boards</h2>
+        <p class="text-slate-500">Browse all available boards.</p>
     </div>
-    <button class="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-blue-500/30 hover:bg-blue-700 hover:-translate-y-0.5 transition-all">
-        + Create New Board
-    </button>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -22,7 +74,7 @@
             </svg>
         </div>
         <h3 class="text-xl font-bold mb-2 text-slate-900 group-hover:text-blue-600 transition-colors">{{ board.name }}</h3>
-        <p class="text-slate-500 mb-6 line-clamp-2">{{ board.description }}</p>
+        <p class="text-slate-500 mb-6 line-clamp-2">{{ board.description or 'No description yet.' }}</p>
         <div class="flex items-center justify-between pt-4 border-t border-slate-100">
             <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Owner: {{ board.owner }}</span>
             <a href="/board/{{ board.id }}" class="text-blue-600 font-bold text-sm hover:underline">Open Board &rarr;</a>
