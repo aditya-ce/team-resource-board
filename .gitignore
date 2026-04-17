@@ -8,3 +8,15 @@ wheels/
 
 # Virtual environments
 .venv
+
+#Env
+.env
+
+# Personal/report artifacts
+Final_CCL_Project_Report_Team_Resource_Board.docx
+CE_TE BE Lab Assessment - Assignment Assessment format.pdf
+assessment_format.txt
+ccl1.pdf
+ccl1.txt
+cc2.pdf
+cc2.txt
