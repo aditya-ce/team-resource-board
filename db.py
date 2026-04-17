@@ -557,6 +557,7 @@ def create_resource(
     storage_path: Optional[str],
     tags: Optional[str] = None,
     access_token: Optional[str] = None,
+    created_by: Optional[str] = None,
 ) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
     """Creates a resource and returns (resource, error_message)."""
     resource_title = title.strip()
@@ -572,6 +573,8 @@ def create_resource(
         "type": safe_type,
         "tags": _normalize_tags(tags),
     }
+    if created_by:
+        payload["created_by"] = created_by
     if storage_path:
         payload["storage_path"] = storage_path
 
@@ -599,6 +602,18 @@ def create_resource(
             return new_resource, None
 
         if _is_permission_error(e):
+            if created_by:
+                service_client = get_service_client()
+                if service_client:
+                    try:
+                        owner_check = service_client.table("boards").select("id").eq("id", board_id).eq("created_by", created_by).limit(1).execute()
+                        if owner_check.data:
+                            fallback_response = _insert_resource_with_column_fallback(service_client, payload)
+                            fallback_rows = fallback_response.data or []
+                            if fallback_rows:
+                                return fallback_rows[0], None
+                    except Exception as service_error:
+                        print(f"Database error (create_resource service fallback): {service_error}")
             return None, "Please sign in and ensure you have access to this board."
 
         print(f"Database error (create_resource): {e}")

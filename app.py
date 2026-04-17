@@ -414,6 +414,8 @@ async def create_resource(
     uploaded_file: UploadFile | None = File(None),
 ):
     access_token = request.cookies.get("access_token")
+    user = await get_current_user(request)
+    user_id = str(user.id) if user and getattr(user, "id", None) else None
     normalized_active_type = _normalize_resource_type(active_type)
     normalized_url = url.strip() or None
     storage_path, upload_error = await _upload_to_storage(uploaded_file)
@@ -457,6 +459,7 @@ async def create_resource(
         storage_path=storage_path,
         tags=tags,
         access_token=access_token,
+        created_by=user_id,
     )
 
     if error:
