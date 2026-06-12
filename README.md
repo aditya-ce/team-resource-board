@@ -72,6 +72,36 @@ To demonstrate **Infrastructure as a Service**, you can run the health monitor o
 3. Run: `python3 iaas_status.py`
 4. Access the dashboard at `http://your-vps-ip:8080`.
 
+### Telegram Health Bot on Oracle VPS
+You can run a lightweight Telegram bot on Oracle VPS to monitor your Render app and send alerts.
+
+1. Ensure your Render app has a public health endpoint:
+	- `https://<your-render-domain>/healthz`
+2. Create a Telegram bot using BotFather and get:
+	- Bot token
+	- Your chat ID
+3. On Oracle VPS, set environment variables and run:
+
+```bash
+export TELEGRAM_BOT_TOKEN="<bot_token>"
+export TELEGRAM_CHAT_ID="<your_chat_id>"
+export HEALTHCHECK_URL="https://<your-render-domain>/healthz"
+export STATUS_CHECK_INTERVAL_SEC="300"
+export HOURLY_SUMMARY_INTERVAL_SEC="3600"
+
+python3 telegram_health_bot.py
+```
+
+Supported commands in Telegram:
+- `/status` : live health check
+- `/ping` : connectivity check
+- `/help` : command list
+
+Notes:
+- No SDK is required. The bot uses Telegram Bot API over plain HTTP.
+- Your current web app implementation does not need route changes if `/healthz` already works.
+- Keep the bot on Oracle and app on Render for resilient monitoring.
+
 ---
 
 ## 📝 Features
